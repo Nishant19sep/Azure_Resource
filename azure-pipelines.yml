@@ -19,7 +19,7 @@ stages:
     - task: AzureCLI@2
       inputs:
         azureSubscription: 'nt-spn'
-        scriptType: bash
+        scriptType: 'pscore'
         scriptLocation: inlineScript
         workingDirectory: $(terraformWorkingDirectory)Storage_With_Module/Parent Module
         inlineScript: |
