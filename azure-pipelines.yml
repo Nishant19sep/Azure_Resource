@@ -1,34 +1,28 @@
 trigger:
-  branches:
-    include:
-      - main
+- main
 
 pool:
   name: 'Agent-Self-Hosted'  # Self-hosted agent pool name
 
-variables:
-  terraformWorkingDirectory: 'Storage_With_Module/Parent Module'  # Change if your Terraform files are in a subfolder
-
-stages:
-- stage: TerraformDeploy
-  jobs:
-  - job: TerraformJob
-    steps:
-    - checkout: self
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'nt-spn'
-        scriptType: 'pscore'
-        scriptLocation: inlineScript
-        workingDirectory: $(terraformWorkingDirectory)Storage_With_Module/Parent Module
-        inlineScript: |
-          terraform init \
-            -backend-config="storage_account_name=ntstg19" \
-            -backend-config="container_name=nt-container" \
-            -backend-config="key=terraform.tfstate" \
-            -backend-config="resource_group_name=nt-stg"
-
-          terraform plan
-
-          terraform apply -auto-approve
+steps:
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)Storage_With_Module/Parent Module'
+    backendAzureRmUseEntraIdForAuthentication: false
+    backendServiceArm: 'nt-spn'
+    backendAzureRmStorageAccountName: 'ntstg19'
+    backendAzureRmContainerName: 'nt-container'
+    backendAzureRmKey: 'terraform.tfstate'
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
+    workingDirectory: '$(System.DefaultWorkingDirectory)Storage_With_Module/Parent Module'
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: '$(System.DefaultWorkingDirectory)Storage_With_Module/Parent Module'
+    environmentServiceNameAzureRM: 'nt-spn'
