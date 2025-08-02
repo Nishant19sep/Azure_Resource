@@ -21,7 +21,7 @@ stages:
         azureSubscription: 'nt-spn'
         scriptType: bash
         scriptLocation: inlineScript
-        workingDirectory: $(terraformWorkingDirectory)
+        workingDirectory: $(terraformWorkingDirectory)Storage_With_Module/Parent Module
         inlineScript: |
           terraform init \
             -backend-config="storage_account_name=ntstg19" \
