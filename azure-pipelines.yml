@@ -13,7 +13,7 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)Storage_With_Module/Parent Module'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'
     backendAzureRmUseEntraIdForAuthentication: false
     backendServiceArm: 'nt-spn'
     backendAzureRmStorageAccountName: 'ntstg19'
