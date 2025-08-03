@@ -7,7 +7,7 @@ pool:
 steps:
 - task: TerraformInstaller@1
   inputs:
-    terraformVersion: '1.10.5'   # Or whatever you need
+    terraformVersion: '1.10.5'
 
 - task: TerraformTask@5
   inputs:
@@ -19,3 +19,4 @@ steps:
     backendAzureRmStorageAccountName: 'ntstg19'
     backendAzureRmContainerName: 'nt-container'
     backendAzureRmKey: 'terraform.tfstate'
+
