@@ -2,9 +2,13 @@ trigger:
 - main
 
 pool:
-  name: 'Agent-Self-Hosted'  # Self-hosted agent pool name
+  name: 'Agent-Self-Hosted'
 
 steps:
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: '1.10.5'   # Or whatever you need
+
 - task: TerraformTask@5
   inputs:
     provider: 'azurerm'
