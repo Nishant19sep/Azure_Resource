@@ -21,3 +21,16 @@ steps:
     backendAzureRmContainerName: 'nt-container'
     backendAzureRmKey: 'terraform.tfstate'
 
+- task: TerraformTask@5
+  displayName: Validate
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module'
+- task: TerraformTask@5
+  displayName: Plan
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'''
+    environmentServiceNameAzureRM: 'nt-spn'
