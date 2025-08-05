@@ -1,15 +1,16 @@
-trigger:
-- main
+trigger: none
 
 pool:
   name: 'Agent-Self-Hosted'
 
 steps:
 - task: TerraformInstaller@1
+  displayName: Installer
   inputs:
-    terraformVersion: '1.10.5'
+    terraformVersion: 'latest'
 
 - task: TerraformTask@5
+  displayName: INIT
   inputs:
     provider: 'azurerm'
     command: 'init'
