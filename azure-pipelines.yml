@@ -30,5 +30,5 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'''
+    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'
     environmentServiceNameAzureRM: 'nt-spn'
