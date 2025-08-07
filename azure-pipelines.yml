@@ -1,45 +1,85 @@
 trigger: none
 
 variables:
-  poolName: 'Agent-Self-Hosted'
-  terraformVersion: 'latest'
   provider: 'azurerm'
   serviceConnection: 'nt-spn'
+  terraformVersion: 'latest'
+  mainWorkingDir: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'
+  validateWorkingDir: '$(System.DefaultWorkingDirectory)/Storage_With_Module'
   storageAccountName: 'ntstg19'
   containerName: 'nt-container'
   stateFileKey: 'terraform.tfstate'
-  mainWorkingDir: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'
-  validateWorkingDir: '$(System.DefaultWorkingDirectory)/Storage_With_Module'
 
 pool:
-  name: $(poolName)
+  name: 'Agent-Self-Hosted'
 
-steps:
-- task: TerraformInstaller@1
-  inputs:
-    terraformVersion: $(terraformVersion)
-- task: TerraformTask@5
-  displayName: INIT
-  inputs:
-    provider: $(provider)
-    command: 'init'
-    workingDirectory: $(mainWorkingDir)
-    backendAzureRmUseEntraIdForAuthentication: false
-    backendServiceArm: $(serviceConnection)
-    backendAzureRmStorageAccountName: $(StorageAccountName)
-    backendAzureRmContainerName: $(containerName)
-    backendAzureRmKey: $(stateFileKey)
+stages:
 
-- task: TerraformTask@5
-  displayName: Validate
-  inputs:
-    provider: 'azurerm'
-    command: 'validate'
-    workingDirectory: $(validateWorkingDir)
-- task: TerraformTask@5
-  displayName: Plan
-  inputs:
-    provider: 'azurerm'
-    command: 'plan'
-    workingDirectory: $(mainWorkingDir)
-    environmentServiceNameAzureRM: 'nt-spn'
+# 🟢 Stage 1: Terraform Init
+- stage: Terraform_Init
+  displayName: "Terraform Init"
+  jobs:
+  - job: Init
+    steps:
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: $(terraformVersion)
+
+    - task: TerraformTask@5
+      displayName: INIT
+      inputs:
+        provider: $(provider)
+        command: 'init'
+        workingDirectory: $(mainWorkingDir)
+        backendAzureRmUseEntraIdForAuthentication: false
+        backendServiceArm: $(serviceConnection)
+        backendAzureRmStorageAccountName: $(storageAccountName)
+        backendAzureRmContainerName: $(containerName)
+        backendAzureRmKey: $(stateFileKey)
+
+# 🟡 Stage 2: Terraform Validate (Runs only if Init is successful)
+- stage: Terraform_Validate
+  displayName: "Terraform Validate"
+  dependsOn: Terraform_Init
+  condition: succeeded()
+  jobs:
+  - job: Validate
+    steps:
+    - task: TerraformTask@5
+      displayName: VALIDATE
+      inputs:
+        provider: $(provider)
+        command: 'validate'
+        workingDirectory: $(validateWorkingDir)
+
+- stage: Terraform_Plan
+  displayName: "Terraform Plan"
+  dependsOn: Terraform_Validate
+  condition: succeeded()
+  jobs:
+  - job: Plan
+    steps:
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: $(terraformVersion)
+
+    - task: TerraformTask@5
+      displayName: INIT before PLAN
+      inputs:
+        provider: $(provider)
+        command: 'init'
+        workingDirectory: $(mainWorkingDir)
+        backendAzureRmUseEntraIdForAuthentication: false
+        backendServiceArm: $(serviceConnection)
+        backendAzureRmStorageAccountName: $(storageAccountName)
+        backendAzureRmContainerName: $(containerName)
+        backendAzureRmKey: $(stateFileKey)
+
+    - task: TerraformTask@5
+      displayName: PLAN
+      inputs:
+        provider: $(provider)
+        command: 'plan'
+        workingDirectory: $(mainWorkingDir)
+        environmentServiceNameAzureRM: $(serviceConnection)
+
