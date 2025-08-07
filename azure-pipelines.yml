@@ -52,7 +52,6 @@ stages:
         command: 'validate'
         workingDirectory: $(validateWorkingDir)
 
-# 🔵 Stage 3: Terraform Plan (Runs only if Validate is successful)
 - stage: Terraform_Plan
   displayName: "Terraform Plan"
   dependsOn: Terraform_Validate
@@ -60,6 +59,22 @@ stages:
   jobs:
   - job: Plan
     steps:
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: $(terraformVersion)
+
+    - task: TerraformTask@5
+      displayName: INIT before PLAN
+      inputs:
+        provider: $(provider)
+        command: 'init'
+        workingDirectory: $(mainWorkingDir)
+        backendAzureRmUseEntraIdForAuthentication: false
+        backendServiceArm: $(serviceConnection)
+        backendAzureRmStorageAccountName: $(storageAccountName)
+        backendAzureRmContainerName: $(containerName)
+        backendAzureRmKey: $(stateFileKey)
+
     - task: TerraformTask@5
       displayName: PLAN
       inputs:
@@ -67,3 +82,4 @@ stages:
         command: 'plan'
         workingDirectory: $(mainWorkingDir)
         environmentServiceNameAzureRM: $(serviceConnection)
+
