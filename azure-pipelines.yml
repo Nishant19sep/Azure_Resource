@@ -1,34 +1,45 @@
 trigger: none
 
+variables:
+  poolName: 'Agent-Self-Hosted'
+  terraformVersion: 'latest'
+  provider: 'azurerm'
+  serviceConnection: 'nt-spn'
+  storageAccountName: 'ntstg19'
+  containerName: 'nt-container'
+  stateFileKey: 'terraform.tfstate'
+  mainWorkingDir: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'
+  validateWorkingDir: '$(System.DefaultWorkingDirectory)/Storage_With_Module'
+
 pool:
-  name: 'Agent-Self-Hosted'
+  name: $(poolName)
 
 steps:
 - task: TerraformInstaller@1
   inputs:
-    terraformVersion: 'latest'
+    terraformVersion: $(terraformVersion)
 - task: TerraformTask@5
   displayName: INIT
   inputs:
-    provider: 'azurerm'
+    provider: $(provider)
     command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'
+    workingDirectory: $(mainWorkingDir)
     backendAzureRmUseEntraIdForAuthentication: false
-    backendServiceArm: 'nt-spn'
-    backendAzureRmStorageAccountName: 'ntstg19'
-    backendAzureRmContainerName: 'nt-container'
-    backendAzureRmKey: 'terraform.tfstate'
+    backendServiceArm: $(serviceConnection)
+    backendAzureRmStorageAccountName: $(StorageAccountName)
+    backendAzureRmContainerName: $(containerName)
+    backendAzureRmKey: $(stateFileKey)
 
 - task: TerraformTask@5
   displayName: Validate
   inputs:
     provider: 'azurerm'
     command: 'validate'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module'
+    workingDirectory: $(validateWorkingDir)
 - task: TerraformTask@5
   displayName: Plan
   inputs:
     provider: 'azurerm'
     command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'
+    workingDirectory: $(mainWorkingDir)
     environmentServiceNameAzureRM: 'nt-spn'
