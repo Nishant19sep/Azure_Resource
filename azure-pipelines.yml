@@ -3,32 +3,22 @@ trigger: none
 pool:
   name: 'Agent-Self-Hosted'
 
-steps:
-- task: TerraformInstaller@1
-  inputs:
-    terraformVersion: 'latest'
-- task: TerraformTask@5
-  displayName: INIT
-  inputs:
-    provider: 'azurerm'
-    command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'
-    backendAzureRmUseEntraIdForAuthentication: false
-    backendServiceArm: 'nt-spn'
-    backendAzureRmStorageAccountName: 'ntstg19'
-    backendAzureRmContainerName: 'nt-container'
-    backendAzureRmKey: 'terraform.tfstate'
-
-- task: TerraformTask@5
-  displayName: Validate
-  inputs:
-    provider: 'azurerm'
-    command: 'validate'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module'
-- task: TerraformTask@5
-  displayName: Plan
-  inputs:
-    provider: 'azurerm'
-    command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'
-    environmentServiceNameAzureRM: 'nt-spn'
+stages:
+  - stage: initilization
+    displayName: build Stage
+    jobs:
+    - job: initandplan
+      displayName: init
+      steps:
+      - task: TerraformInstaller@1
+        inputs:
+          terraformVersion: 'latest'
+      - task: TerraformTask@5
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Storage_With_Module/Parent Module'''
+          backendServiceArm: 'nt-spn'
+          backendAzureRmStorageAccountName: 'ntstg19'
+          backendAzureRmContainerName: 'nt-container'
+          backendAzureRmKey: 'terraform.tfstate'
